@@ -84,6 +84,12 @@ while True:
 
     if key == ord('q'):
         break
+    elif key == ord('s'):
+        # Save the current frame as an image
+        screenshot_filename = 'screenshot_letter({}).jpg'.format(predicted_character)
+        cv2.imwrite(screenshot_filename, frame)
+        print(f'Screenshot saved as {screenshot_filename}')
+
 
 cap.release()
 cv2.destroyAllWindows()
