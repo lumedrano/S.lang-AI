@@ -2,11 +2,19 @@ import os
 from PIL import Image, ImageTk
 import tkinter as tk
 
-
-##TODO: get the images to show up consecutively with scroll bar and make the textbox stay if I want to edit and retranslate something else.
-
 # Function to display the first photo of each letter
 def display_photos(sentence):
+    global photo_references, image_idx  # Use global variables for PhotoImage references and current image index
+    image_idx = 0  # Initialize the current image index to 0
+
+    def show_next_image():
+        global image_idx
+        if image_idx < len(photo_references):
+            canvas.delete("all")  # Clear previous image
+            canvas.create_image(0, 0, anchor=tk.NW, image=photo_references[image_idx])  # Show the current image
+            image_idx += 1
+            root.after(500, show_next_image)  # Schedule the next image transition after 500ms
+
     # Create a list to store the image paths of each letter
     image_paths = []
     # Iterate through each letter in the sentence
@@ -19,21 +27,19 @@ def display_photos(sentence):
                 image_paths.append(image_path)
                 break  # Stop after finding the first image
 
-    # Display the photos in the GUI
-    x = 0
-    photo_references = []  # List to store PhotoImage references
+    # Load all images into PhotoImage references
+    photo_references = []
     for image_path in image_paths:
         image = Image.open(image_path)
         photo = ImageTk.PhotoImage(image)
         photo_references.append(photo)  # Store the reference
-        label = tk.Label(root, image=photo)
-        label.photo = photo  # Keep a reference to the PhotoImage to prevent garbage collection
-        label.place(x=x, y=0)
-        x += photo.width()
+
+    # Start showing images
+    show_next_image()
 
 # Create GUI
 root = tk.Tk()
-root.title("Sign Language Translator")
+root.title("S.lang AI Translator")
 
 # Input box
 input_label = tk.Label(root, text="Enter your sentence:")
@@ -41,12 +47,20 @@ input_label.pack()
 input_box = tk.Entry(root)
 input_box.pack()
 
+# Frame to hold canvas
+frame = tk.Frame(root)
+frame.pack()
+
+# Canvas to display images
+canvas = tk.Canvas(frame, width=800, height=600)
+canvas.pack()
+
 # Button to trigger translation
 translate_button = tk.Button(root, text="Translate", command=lambda: display_photos(input_box.get()))
 translate_button.pack()
 
-# Canvas (Not used in this version, you can remove this line if desired)
-canvas = tk.Canvas(root, width=800, height=300)
-canvas.pack()
+# List to store PhotoImage references
+photo_references = []
+image_idx = 0  # Variable to keep track of the current image index
 
 root.mainloop()
