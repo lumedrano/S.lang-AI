@@ -2,8 +2,12 @@ import os
 from PIL import Image, ImageTk
 import tkinter as tk
 
+
 # Function to display the first photo of each letter
 def display_photos(sentence):
+    #remove spaces from user sentence input
+    sentence = sentence.replace(" ", "")
+
     global photo_references, image_idx  # Use global variables for PhotoImage references and current image index
     image_idx = 0  # Initialize the current image index to 0
 
@@ -17,6 +21,7 @@ def display_photos(sentence):
 
     # Create a list to store the image paths of each letter
     image_paths = []
+
     # Iterate through each letter in the sentence
     for letter in sentence:
         # Load the corresponding image from the folder A-Z
