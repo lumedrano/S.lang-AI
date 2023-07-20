@@ -2,8 +2,10 @@ import pickle
 import cv2
 import mediapipe as mp
 import numpy as np
+import time
+
 def gesture_to_text():
-    model_dict = pickle.load(open('./slangai.p', 'rb'))
+    model_dict = pickle.load(open('./slangai.p', 'rb')) #do ./run/slangai.p if testing this script
     model = model_dict['model']
 
     cap = cv2.VideoCapture(0)
@@ -20,6 +22,10 @@ def gesture_to_text():
     labels_dict = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J',
                 10: 'K', 11: 'L', 12: 'M', 13: 'N', 14: 'O', 15: 'P', 16: 'Q', 17: 'R', 18: 'S',
                 19: 'T', 20: 'U', 21: 'V', 22: 'W', 23: 'X', 24: 'Y', 25: 'Z'}
+
+    sentence = ""
+    stable_predicted_letter = None
+    letter_stable_start_time = 0
 
     while True:
 
@@ -75,21 +81,38 @@ def gesture_to_text():
 
             predicted_character = labels_dict[int(prediction[0])]
 
+            # Create a black background rectangle for the sentence
+            bg_height = 60
+            bg_x = 20
+            bg_y = H - bg_height - 10
+            bg_width = int(cv2.getTextSize(sentence, cv2.FONT_HERSHEY_SIMPLEX, 1.3, 3)[0][0]) + 20
+
+            cv2.rectangle(frame, (bg_x, bg_y), (bg_x + bg_width, bg_y + bg_height), (0, 0, 0), -1)
+
+            # Add the sentence in white letters on the black background
+            cv2.putText(frame, sentence, (bg_x + 10, bg_y + bg_height - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 3, cv2.LINE_AA)
+
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
             cv2.putText(frame, predicted_character, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3,
                         cv2.LINE_AA)
+
+            # Check if the prediction remains the same for about 1.5 seconds
+            if stable_predicted_letter == predicted_character:
+                if time.time() - letter_stable_start_time >= 2:
+                    sentence += predicted_character
+                    letter_stable_start_time = time.time()
+            else:
+                stable_predicted_letter = predicted_character
+                letter_stable_start_time = time.time()
 
         cv2.imshow('frame', frame)
         key = cv2.waitKey(1)
 
         if key == ord('q'):
             break
-        elif key == ord('s'):
-            # Save the current frame as an image
-            screenshot_filename = 'screenshot_letter({}).jpg'.format(predicted_character)
-            cv2.imwrite(screenshot_filename, frame)
-            print(f'Screenshot saved as {screenshot_filename}')
-
 
     cap.release()
     cv2.destroyAllWindows()
+    return sentence #remove if testing this script
+
+# gesture_to_text() #for testing this script, use function in streamlit to test GUI

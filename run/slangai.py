@@ -1,27 +1,13 @@
-import streamlit as st
 import os
+import streamlit as st
 from PIL import Image
 from main import gesture_to_text
 
 # Function to display the first photo of each letter
 def display_photos(sentence):
-    global photo_references, image_idx  # Use global variables for PhotoImage references and current image index
-    image_idx = 0  # Initialize the current image index to 0
-
-    def show_next_image():
-        global image_idx
-        if image_idx < len(photo_references):
-            st.image(photo_references[image_idx], use_column_width=True)  # Show the current image
-            image_idx += 1
-            if image_idx < len(photo_references):
-                st.write("Next image will appear in 0.5 seconds...")
-                st.session_state.next_image_timer = st.session_state.next_image_timer - 1
-                st.experimental_rerun()
-            else:
-                st.session_state.next_image_timer = 0
-
     # Create a list to store the image paths of each letter
     image_paths = []
+
     # Iterate through each letter in the sentence
     for letter in sentence:
         # Load the corresponding image from the folder A-Z
@@ -32,23 +18,13 @@ def display_photos(sentence):
                 image_paths.append(image_path)
                 break  # Stop after finding the first image
 
-    # Load all images into Image references
-    photo_references = []
+    # Display images on the Streamlit UI
     for image_path in image_paths:
         image = Image.open(image_path)
-        photo_references.append(image)  # Store the reference
-
-    # Start showing images
-    if "next_image_timer" not in st.session_state:
-        st.session_state.next_image_timer = 0
-    if st.session_state.next_image_timer == 0:
-        st.session_state.next_image_timer = len(photo_references)
-        show_next_image()
+        st.image(image, caption=f"Letter: {sentence[image_paths.index(image_path)]}", use_column_width=True)
 
 # Streamlit app
 st.title("S.lang AI Translator")
-
-# User selection for translation mode
 
 # User selection for translation mode
 translation_mode = st.radio("Select Translation Mode:", ("Gesture to Text", "Text to Gesture"))
@@ -60,6 +36,8 @@ if select_button:
         # Streamlit UI to capture hand gestures using OpenCV
         st.info("Make hand gestures in front of your webcam.")
         opencv_result = gesture_to_text()  # Use the OpenCV function
+
+        # Display the sentence created by the user on the Streamlit UI
         st.write("Gesture Translation:", opencv_result)
 
     elif translation_mode == "Text to Gesture":
