@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gesture to Text Web App</title>
+    <!-- Add your CSS styles or link to an external CSS file here if needed -->
+</head>
+<body>
+    <h1>Gesture to Text</h1>
+    <button id="start-gesture-btn">Start Gesture</button>
+    <textarea id="sentence" rows="5" cols="50" disabled></textarea>
+    <video id="video" width="640" height="480" style="display: none;"></video>
+
+    <script>
+        let isGestureMode = false;
+        let stopGestureInterval;
+
+        async function startGestureToText() {
+            const response = await fetch("/start_gesture");
+            if (response.ok) {
+                isGestureMode = true;
+                document.getElementById("sentence").value = "Camera is on. Ready to Translate!";
+                
+                // Start a loop to continuously capture and process gestures
+                stopGestureInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch("/gesture_to_text", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                        });
+                        const data = await response.json();
+                        const sentence = data.sentence;
+                        document.getElementById("sentence").value = sentence; // Display the sentence on the textarea
+                    } catch (error) {
+                        console.error("Error fetching data:", error);
+                    }
+                }, 1000); // Set the interval time according to your needs (e.g., 100ms)
+            }
+        }
+
+        // Event listener for the "Start Gesture" button
+        document.getElementById("start-gesture-btn").addEventListener("click", async () => {
+            await startGestureToText();
+        });
+    </script>
+</body>
+</html>

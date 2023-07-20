@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from PIL import Image
-from main import gesture_to_text
+from gesture2text import gesture_to_text
 
 # Function to display the first photo of each letter
 def display_photos(sentence):
