@@ -3,6 +3,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
+import json
 
 def gesture_to_text():
     model_dict = pickle.load(open('./slangai.p', 'rb')) #do ./run/slangai.p if testing this script
@@ -19,9 +20,13 @@ def gesture_to_text():
     # Get the number of features expected by the model
     num_features = model.n_features_in_
 
-    labels_dict = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J',
-                10: 'K', 11: 'L', 12: 'M', 13: 'N', 14: 'O', 15: 'P', 16: 'Q', 17: 'R', 18: 'S',
-                19: 'T', 20: 'U', 21: 'V', 22: 'W', 23: 'X', 24: 'Y', 25: 'Z'}
+    # labels_dict = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J',
+    #             10: 'K', 11: 'L', 12: 'M', 13: 'N', 14: 'O', 15: 'P', 16: 'Q', 17: 'R', 18: 'S',
+    #             19: 'T', 20: 'U', 21: 'V', 22: 'W', 23: 'X', 24: 'Y', 25: 'Z'}
+    with open (r'./data/gesture_labels.json') as f:
+        labels_dict = json.load(f)
+        labels_dict = {int(key): value for key, value in labels_dict.items()}
+
 
     sentence = ""
     stable_predicted_letter = None
