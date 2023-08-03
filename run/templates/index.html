@@ -1,48 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gesture to Text Web App</title>
-    <!-- Add your CSS styles or link to an external CSS file here if needed -->
-</head>
-<body>
-    <h1>Gesture to Text</h1>
-    <button id="start-gesture-btn">Start Gesture</button>
-    <textarea id="sentence" rows="5" cols="50" disabled></textarea>
-    <video id="video" width="640" height="480" style="display: none;"></video>
-
-    <script>
-        let isGestureMode = false;
-        let stopGestureInterval;
-
-        async function startGestureToText() {
-            const response = await fetch("/start_gesture");
-            if (response.ok) {
-                isGestureMode = true;
-                document.getElementById("sentence").value = "Camera is on. Ready to Translate!";
-                
-                // Start a loop to continuously capture and process gestures
-                stopGestureInterval = setInterval(async () => {
-                    try {
-                        const response = await fetch("/gesture_to_text", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                        });
-                        const data = await response.json();
-                        const sentence = data.sentence;
-                        document.getElementById("sentence").value = sentence; // Display the sentence on the textarea
-                    } catch (error) {
-                        console.error("Error fetching data:", error);
-                    }
-                }, 1000); // Set the interval time according to your needs (e.g., 100ms)
-            }
+    <title>Gesture to Text</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('./images/logo.png');
+            background-size: cover;
         }
 
-        // Event listener for the "Start Gesture" button
-        document.getElementById("start-gesture-btn").addEventListener("click", async () => {
-            await startGestureToText();
-        });
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #result {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        button {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gesture to Text</h1>
+        <button onclick="runGestureToText()">Run Gesture to Text</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function runGestureToText() {
+            fetch('http://127.0.0.1:5000/api/gesture-to-text')
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = 'Detected Sentence: ' + data.sentence;
+                })
+                .catch(error => console.error('Error:', error));
+        }
     </script>
 </body>
 </html>

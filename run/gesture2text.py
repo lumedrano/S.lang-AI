@@ -33,12 +33,13 @@ def gesture_to_text():
     letter_stable_start_time = 0
 
     while True:
-
         data_aux = []
         x_ = []
         y_ = []
 
         ret, frame = cap.read()
+        cv2.putText(frame, 'Press Q when done! :)', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
+
 
         H,W, _ = frame.shape
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -100,7 +101,6 @@ def gesture_to_text():
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
             cv2.putText(frame, predicted_character, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.3, (0, 0, 0), 3,
                         cv2.LINE_AA)
-
             # Check if the prediction remains the same for about 1.5 seconds
             if stable_predicted_letter == predicted_character:
                 if time.time() - letter_stable_start_time >= 2:
