@@ -41,7 +41,7 @@ def gesture_to_text():
         cv2.putText(frame, 'Press Q when done! :)', (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2, cv2.LINE_AA)
 
 
-        H,W, _ = frame.shape
+        (H,W, _) = frame.shape
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         results = hands.process(frame_rgb)
